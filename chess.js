@@ -33,7 +33,7 @@
  *  https://github.com/jhlywa/chess.js/blob/master/LICENSE
  */
 
-var Chess = function(fen) {
+var Chess = function(fen, options) {
 
   /* jshint indent: false */
 
@@ -49,9 +49,11 @@ var Chess = function(fen) {
   var QUEEN = 'q';
   var KING = 'k';
 
+  var chessattack = options && options['mode'] && options['mode'] === 'chessattack';
+
   var SYMBOLS = 'pnbrqkPNBRQK';
 
-  var DEFAULT_POSITION = '8/8/rnbqk3/ppppp3/8/8/PPPPP3/RNBQK3 w KQkq - 0 1';
+  var DEFAULT_POSITION = chessattack ? '8/8/rnbqk3/ppppp3/8/8/PPPPP3/RNBQK3 w KQkq - 0 1' : 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
 
   var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*'];
 
@@ -485,7 +487,7 @@ var Chess = function(fen) {
     var moves = [];
     var us = turn;
     var them = swap_color(us);
-    var second_rank = {b: RANK_5, w: RANK_2};
+    var second_rank = {b: chessattack ? RANK_5 : RANK_7, w: RANK_2};
 
     var first_sq = SQUARES.a8;
     var last_sq = SQUARES.h1;
@@ -611,7 +613,7 @@ var Chess = function(fen) {
     var legal_moves = [];
     for (var i = 0, len = moves.length; i < len; i++) {
       make_move(moves[i]);
-      if (!king_attacked(us) && file(moves[i].to) < 5 && rank(moves[i].to) > RANK_7) {
+      if (!king_attacked(us) && (!chessattack || file(moves[i].to) < 5 && rank(moves[i].to) > RANK_7)) {
         legal_moves.push(moves[i]);
       }
       undo_move();
