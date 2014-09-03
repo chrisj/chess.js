@@ -106,6 +106,69 @@ var Chess = function(fen, options) {
     -15,  0,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,  0,-17
   ];
 
+  var POSITION_BONUS = {
+    p: [
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      3,3,3,4,4,3,3,3,0,0,0,0,0,0,0,0,
+      3,3,3,4,4,3,3,3,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
+    n: [
+      0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+      1,1,2,1,1,2,1,1,0,0,0,0,0,0,0,0,
+      1,2,3,3,3,3,2,1,0,0,0,0,0,0,0,0,
+      1,2,3,4,4,3,3,1,0,0,0,0,0,0,0,0,
+      1,2,3,4,4,3,3,1,0,0,0,0,0,0,0,0,
+      1,2,3,3,3,3,2,1,0,0,0,0,0,0,0,0,
+      1,1,2,1,1,2,1,1,0,0,0,0,0,0,0,0,
+      0,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,
+    ],
+    b: [
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,0,
+      1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
+    r: [
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
+    q: [
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
+    k: [
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+      0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    ],
+  };
+
   var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 };
 
   var FLAGS = {
@@ -136,6 +199,8 @@ var Chess = function(fen, options) {
   var RANK_6 = 2;
   var RANK_7 = 1;
   var RANK_8 = 0;
+
+  var LAST_RANK = chessattack ? RANK_6 : RANK_8;
 
   var SQUARES = {
     a8:   0, b8:   1, c8:   2, d8:   3, e8:   4, f8:   5, g8:   6, h8:   7,
@@ -474,7 +539,7 @@ var Chess = function(fen, options) {
     function add_move(board, moves, from, to, flags) {
       /* if pawn promotion */
       if (board[from].type === PAWN &&
-         (rank(to) === RANK_8 || rank(to) === RANK_1)) {
+         (rank(to) === LAST_RANK || rank(to) === RANK_1)) {
           var pieces = [QUEEN, ROOK, BISHOP, KNIGHT];
           for (var i = 0, len = pieces.length; i < len; i++) {
             moves.push(build_move(board, from, to, flags, pieces[i]));
@@ -1122,6 +1187,125 @@ var Chess = function(fen, options) {
     return nodes;
   }
 
+  var weights = { // berliner
+    w: {
+      p: 100,
+      n: 320,
+      b: 333,
+      r: 510,
+      q: 880,
+      k: 100000000
+    },
+    b: {
+      p: -100,
+      n: -320,
+      b: -333,
+      r: -510,
+      q: -880,
+      k: -100000000
+    }
+  };
+
+  function white_value() {
+    var result = 0;
+
+    for (var i = SQUARES.a8; i<= SQUARES.h1; i++) {
+      if (i & 0x88) { i += 7; continue; }
+
+      var piece = board[i];
+      if (piece) {
+        result += weights[piece.color][piece.type] * (1 + POSITION_BONUS[piece.type][i] / 10);
+      }
+    }
+
+    return result;
+  }
+
+  var movesForWhite = 1;
+
+  function minimaxMax(depth, alpha, beta) {
+    // console.log('calling max');
+    var moves = generate_moves();
+    if (moves.length === 0) {
+      if (in_check()) {
+        return Number.NEGATIVE_INFINITY;
+      } else {
+        return 0;
+      }
+    } else if (depth === 0) {
+      return white_value() * movesForWhite;
+    } else {
+      for (var i = moves.length - 1; i >= 0; i--) {
+          var move = moves[i];
+          make_move(move);
+          var val = minimaxMin(depth - 1, alpha, beta);
+          undo_move();
+          alpha = Math.max(alpha, val);
+
+          if (beta <= alpha) {
+            break;
+          }
+      };
+      return alpha;
+    }
+  }
+
+  function minimaxMin(depth, alpha, beta) {
+    // console.log('calling min');
+    var moves = generate_moves();
+    if (moves.length === 0) {
+      if (in_check()) {
+        return Number.POSITIVE_INFINITY;
+      } else {
+        return 0;
+      }
+    } else if (depth === 0) {
+      return white_value() * movesForWhite;
+    } else {
+      for (var i = moves.length - 1; i >= 0; i--) {
+          var move = moves[i];
+          make_move(move);
+          var val = minimaxMax(depth - 1, alpha, beta);
+          undo_move();
+          beta = Math.min(beta, val);
+
+          if (beta <= alpha) {
+            break;
+          }
+      };
+      return beta;
+    }
+  }
+
+  function best_move(depth) {
+    movesForWhite = (turn === WHITE ? 1 : -1);
+
+    var originalValue = white_value() * movesForWhite;
+
+    var moves = generate_moves();
+
+    if (moves.length === 0) {
+      return null;
+    }
+
+    var alpha = Number.NEGATIVE_INFINITY;
+    var beta = Number.POSITIVE_INFINITY
+    var bestMove;
+    for (var i = moves.length - 1; i >= 0; i--) {
+        var move = moves[i];
+        make_move(move);
+        var val = minimaxMin(depth - 1, alpha, beta);
+        undo_move();
+
+        if (val > alpha) {
+          bestMove = move;
+          alpha = val;
+        }
+    };
+    // console.log('change', alpha - originalValue, alpha, originalValue);
+    return move_to_san((bestMove ? bestMove : moves[0])); // if all moves can result in being checkmated, choose first
+  };
+
   return {
     /***************************************************************************
      * PUBLIC CONSTANTS (is there a better way to do this?)
@@ -1153,6 +1337,14 @@ var Chess = function(fen, options) {
     /***************************************************************************
      * PUBLIC API
      **************************************************************************/
+    best_move: function (depth) {
+      return best_move(depth);
+    },
+
+    position_value: function (player) {
+      return white_value() * (player === 'w' ? 1 : -1);
+    },
+
     load: function(fen) {
       return load(fen);
     },
